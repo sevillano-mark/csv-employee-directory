@@ -1,8 +1,3 @@
-/* eslint-disable prettier/prettier */
-/*
-https://docs.nestjs.com/providers#services
-*/
-
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -19,6 +14,20 @@ export class EmployeeService {
     }
 
     async findAll(): Promise<Employee[]> {
-        return this.employeeModel.find().exec();
+        return await this.employeeModel.find().exec();
+    }
+
+    async findOne(empId: number): Promise<Employee> {
+        return await this.employeeModel.findOne({ employeenumber: empId });
+    }
+
+    async update(empId: number, employee: Employee): Promise<Employee> {
+        const condition = { employeenumber: empId };
+        return await this.employeeModel.findOneAndUpdate(condition, employee, { new: true });
+    }
+
+    async delete(empId: number): Promise<any> {
+        const condition = { employeenumber: empId };
+        return await this.employeeModel.findOneAndUpdate(condition, { deleted: true }, { new: true });
     }
 }

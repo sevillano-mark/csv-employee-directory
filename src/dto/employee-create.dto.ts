@@ -22,7 +22,7 @@ export class EmployeeCreateDto {
 
   @ApiProperty()
   @IsDate()
-  public hiredate: number;
+  public hiredate: Date;
 
   @ApiProperty()
   @IsNotEmpty()

@@ -1,21 +1,23 @@
+import { Injectable } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type CommunityDocument = Community & Document;
 
-@Schema()
+
+@Schema({ timestamps: true })
 export class Community {
+  @Prop({ type: Number, required: false})
+  communityId: number;
+  
   @Prop()
-  firstname: string;
+  name: string;
 
   @Prop()
-  lastname: string;
+  description: string;
 
-  @Prop()
-  email: number;
-
-  @Prop()
-  community: string;
+  @Prop({default: false})
+  deleted: boolean;
 }
 
 export const CommunitySchema = SchemaFactory.createForClass(Community);

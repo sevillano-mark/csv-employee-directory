@@ -4,22 +4,28 @@ import { Community } from './community.schema';
 
 export type EmployeeDocument = Employee & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Employee {
   @Prop({ required: true })
-  firstname: string;
+  employeeNumber: number;
 
   @Prop({ required: true })
-  lastname: string;
+  firstName: string;
+
+  @Prop({ required: true })
+  lastName: string;
 
   @Prop({ required: true })
   email: number;
 
   @Prop({ type: Date, required: true })
-  hiredate: Date;
+  hireDate: Date;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Community' })
   community: Community;
+
+  @Prop()
+  deleted: boolean;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);

@@ -1,4 +1,3 @@
-/* eslint-disable prettier/prettier */
 import { EmployeeController } from '../controllers/employee.controller';
 import { EmployeeService } from '../services/employee.service';
 

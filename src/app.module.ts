@@ -1,18 +1,29 @@
 import { CommunityModule } from './modules/community.module';
 import { EmployeeModule } from './modules/employee.module';
-import { Module } from '@nestjs/common';
+import { Module, Scope } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
+import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import { EmployeeController } from './controllers/employee.controller';
+import { CommunityService } from './services/community.service';
+import { EmployeeService } from './services/employee.service';
+import { Connection } from 'mongoose';
+import { Community, CommunitySchema } from './models/community.schema';
+import * as AutoIncrementFactory from 'mongoose-sequence';
+import { MongoService } from './services/mongodb.service';
+import { PaginationHelper } from './helper/pagination.helper';
+import { HttpResponseInterceptor } from './interceptors/http-response.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
     CommunityModule,
     EmployeeModule,
-    MongooseModule.forRoot('mongodb://localhost:27017/csv-employee-directory'),
+    MongooseModule.forRootAsync({
+      useClass: MongoService,
+    })
   ],
-  controllers: [EmployeeController, AppController],
+  controllers: [],
   providers: [AppService],
 })
 export class AppModule {}
