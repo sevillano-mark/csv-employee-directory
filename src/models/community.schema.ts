@@ -4,20 +4,19 @@ import { Document } from 'mongoose';
 
 export type CommunityDocument = Community & Document;
 
-
 @Schema({ timestamps: true })
 export class Community {
-  @Prop({ type: Number, required: false})
+  @Prop({ type: Number, required: true, unique: true })
   communityId: number;
-  
+
   @Prop()
   name: string;
 
   @Prop()
   description: string;
 
-  @Prop({default: false})
-  deleted: boolean;
+  @Prop({ default: false })
+  deleted?: boolean;
 }
 
 export const CommunitySchema = SchemaFactory.createForClass(Community);

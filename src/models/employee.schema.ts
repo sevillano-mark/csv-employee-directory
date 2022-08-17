@@ -6,7 +6,7 @@ export type EmployeeDocument = Employee & Document;
 
 @Schema({ timestamps: true })
 export class Employee {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   employeeNumber: number;
 
   @Prop({ required: true })
@@ -16,7 +16,7 @@ export class Employee {
   lastName: string;
 
   @Prop({ required: true })
-  email: number;
+  email: string;
 
   @Prop({ type: Date, required: true })
   hireDate: Date;
@@ -24,8 +24,8 @@ export class Employee {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Community' })
   community: Community;
 
-  @Prop()
-  deleted: boolean;
+  @Prop({ default: false })
+  deleted?: boolean;
 }
 
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);

@@ -1,45 +1,70 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { EmployeeCreateDto } from 'src/dto/employee-create.dto';
-import { Employee } from 'src/models/employee.schema';
+import { Pagination } from 'src/models/pagination.model';
+import { QueryParamsPipe } from 'src/pipes/query.params.pipe';
 import { EmployeeService } from 'src/services/employee.service';
+import { CustomErrors } from 'src/shared/errors/custom.errors';
 
 @ApiTags('Employee')
-@Controller('Employee')
+@Controller({ path: 'employee' })
 export class EmployeeController {
-
   constructor(private employeeService: EmployeeService) {}
 
   @Get()
-  getAllEmployees(): string {
-    return '{ "controller" : "EmployeeController", "action" : "getAllEmployees" }';
+  async getAllEmployees(@Query(new QueryParamsPipe()) params) {
+    const employeeList = await this.employeeService.findAll(params);
+    const paginatedResult: Pagination = {
+      results: employeeList,
+      currentPage: params.page,
+      pageSize: params.pageLimit,
+    };
+    return paginatedResult;
   }
 
   @Get(':id')
-  getEmployee(@Param('id') employeeId: string): string {
-    return `{ "controller" : "EmployeeController", "action" : "getEmployee", "id" : "${employeeId}"}`;
+  async getEmployee(@Param('id') employeeId: number) {
+    const employee = await this.employeeService.findOne(employeeId);
+    if (employee) return employee;
+    else throw new NotFoundException(CustomErrors.EmployeeNotFound);
   }
 
   @Post()
-  createEmployee(@Body() employeeCreateDto: EmployeeCreateDto) {
-    return `{ "controller" : "EmployeeController", "action" : "createEmployee", "id" : ""}`;
+  async createEmployee(@Body() employeeCreateDto: EmployeeCreateDto) {
+    const employeeCreated = await this.employeeService.create(
+      employeeCreateDto,
+    );
+    return employeeCreated;
   }
 
   @Put(':id')
-  updateEmployee(@Param('id') employeeId: string): string {
-    return `{ "controller" : "EmployeeController", "action" : "updateEmployee", "id" : "${employeeId}"}`;
+  async updateEmployee(
+    @Param('id') employeeId: number,
+    @Body() employeeCreateDto: EmployeeCreateDto,
+  ) {
+    const employeeUpdated = await this.employeeService.update(
+      employeeId,
+      employeeCreateDto,
+    );
+    if (employeeUpdated) return employeeUpdated;
+    else throw new BadRequestException(CustomErrors.EmployeeNotFound);
   }
 
   @Delete(':id')
-  deleteEmployee(@Param('id') employeeId: string): string {
-    return `{ "controller" : "EmployeeController", "action" : "deleteEmployee", "id" : "${employeeId}"}`;
+  async deleteEmployee(@Param('id') employeeId: number) {
+    const employeeDeleted = await this.employeeService.delete(employeeId);
+    if (employeeDeleted) return employeeDeleted;
+    else throw new BadRequestException(CustomErrors.EmployeeNotFound);
   }
 }

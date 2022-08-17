@@ -1,43 +1,48 @@
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
-import { Types } from 'mongoose';
-import { BadRequestException } from '@nestjs/common';
+import {
+  IsDate,
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsString,
+  Length,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class EmployeeCreateDto {
   @ApiProperty()
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  public firstname: string;
+  @Min(1)
+  public employeeNumber: number;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  public lastname: string;
+  @Length(2, 200)
+  public firstName: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @Length(2, 200)
+  public lastName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Length(2, 250)
+  @IsEmail()
   public email: string;
 
   @ApiProperty()
   @IsDate()
-  public hiredate: Date;
+  @Type(() => Date)
+  public hireDate: Date;
 
   @ApiProperty()
   @IsNotEmpty()
-  @Type(() => Types.ObjectId)
-  @Transform(toMongoObjectId)
-  communityId: Types.ObjectId;
-}
-
-export function toMongoObjectId({ value, key }): Types.ObjectId {
-  if (
-    Types.ObjectId.isValid(value) &&
-    new Types.ObjectId(value).toString() === value
-  ) {
-    return new Types.ObjectId(value);
-  } else {
-    throw new BadRequestException(`${key} is not a valid MongoId`);
-  }
+  @IsNumber()
+  communityId: number;
 }
