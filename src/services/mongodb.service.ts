@@ -7,16 +7,12 @@ import {
 @Injectable()
 export class MongoService implements MongooseOptionsFactory {
   createMongooseOptions(): MongooseModuleOptions {
-    const user = 'localhost';
-    const port = '27017';
+    const user = process.env.REMOTE_DB_UNAME;
     const database = 'csv-employee-directory';
-    // const password = this.configService.get(Configuration.DB_MONGO_PASSWORD);
-    // const server   = this.configService.get(Configuration.DB_MONGO_HOST);
-    // const database = this.configService.get(Configuration.DB_MONGO_DATABASE);
+    const password = process.env.REMOTE_DB_PWORD;
 
     return {
-      // uri: `mongodb://${user}:${password}@${server}/${database}?retryWrites=true&w=majority`,
-      uri: `mongodb://${user}:${port}/${database}?retryWrites=true&w=majority`,
+      uri: `mongodb+srv://${user}:${password}@cluster0.cewxcbd.mongodb.net/${database}`,
     };
   }
 }

@@ -3,7 +3,7 @@ import { QueryPagination } from 'src/models/query.pagination.model';
 
 @Injectable()
 export class QueryParamsPipe implements PipeTransform {
-  transform(value: any, metadata: ArgumentMetadata): QueryPagination {
+  transform(value: any): QueryPagination {
     const query = value;
     const queryParams: QueryPagination = new QueryPagination();
     if (query.page) queryParams.page = query.page;

@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -6,7 +5,7 @@ export type CommunityDocument = Community & Document;
 
 @Schema({ timestamps: true })
 export class Community {
-  @Prop({ type: Number, required: true, unique: true })
+  @Prop({ type: Number, required: true, unique: true, index: true })
   communityId: number;
 
   @Prop()
@@ -20,3 +19,4 @@ export class Community {
 }
 
 export const CommunitySchema = SchemaFactory.createForClass(Community);
+CommunitySchema.index({ communityId: 1 }, { unique: true });
