@@ -1,5 +1,5 @@
-import { PipeTransform, Injectable } from '@nestjs/common';
-import { QueryPagination } from 'src/dto/query-pagination.dto';
+import { PipeTransform, Injectable } from "@nestjs/common";
+import { QueryPagination } from "src/dto/query-pagination.dto";
 
 @Injectable()
 export class QueryParamsPipe implements PipeTransform {

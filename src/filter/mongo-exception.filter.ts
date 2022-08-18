@@ -1,6 +1,6 @@
-import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { MongoError } from 'mongodb';
-import { Request, Response } from 'express';
+import { ArgumentsHost, Catch, ExceptionFilter } from "@nestjs/common";
+import { MongoError } from "mongodb";
+import { Request, Response } from "express";
 
 @Catch(MongoError)
 export class MongoExceptionFilter implements ExceptionFilter {

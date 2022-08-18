@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { Document } from 'mongoose';
-import { Community } from './community.schema';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Document } from "mongoose";
+import { Community } from "./community.schema";
 
 export type EmployeeDocument = Employee & Document;
 
@@ -21,7 +21,7 @@ export class Employee {
   @Prop({ type: Date, required: true })
   hireDate: Date;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Community', index: true })
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Community", index: true })
   community: Community;
 
   @Prop({ default: false })
@@ -31,5 +31,5 @@ export class Employee {
 export const EmployeeSchema = SchemaFactory.createForClass(Employee);
 EmployeeSchema.index({ employeeNumber: 1 }, { unique: true });
 EmployeeSchema.index({ community: 1 }, { unique: true });
-EmployeeSchema.index({ firstName: 'text' });
-EmployeeSchema.index({ lastName: 'text' });
+EmployeeSchema.index({ firstName: "text" });
+EmployeeSchema.index({ lastName: "text" });

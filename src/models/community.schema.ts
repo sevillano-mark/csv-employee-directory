@@ -1,5 +1,5 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Document } from "mongoose";
 
 export type CommunityDocument = Community & Document;
 
@@ -20,5 +20,5 @@ export class Community {
 
 export const CommunitySchema = SchemaFactory.createForClass(Community);
 CommunitySchema.index({ communityId: 1 }, { unique: true });
-CommunitySchema.index({ name: 'text' });
-CommunitySchema.index({ description: 'text' });
+CommunitySchema.index({ name: "text" });
+CommunitySchema.index({ description: "text" });
