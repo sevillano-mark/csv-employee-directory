@@ -1,19 +1,19 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString, Min } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEnum, IsNumber, IsString, Min } from "class-validator";
 
 export enum OrderEnum {
-  ASC = 'asc',
-  DESC = 'desc',
+  ASC = "asc",
+  DESC = "desc",
 }
 
 export class QueryPagination {
   @ApiProperty({
     minimum: 1,
     maximum: 10000,
-    title: 'Page',
+    title: "Page",
     exclusiveMaximum: true,
     exclusiveMinimum: true,
-    format: 'int32',
+    format: "int32",
     default: 1,
     required: true,
   })
@@ -24,7 +24,7 @@ export class QueryPagination {
   @ApiProperty({
     minimum: 1,
     maximum: 10000,
-    title: 'Page Limit',
+    title: "Page Limit",
     default: 10,
     required: false,
   })
@@ -33,16 +33,16 @@ export class QueryPagination {
   pageLimit = 10;
 
   @ApiProperty({
-    title: 'Page Limit',
-    default: '_id',
+    title: "Page Limit",
+    default: "_id",
     required: false,
   })
   @IsString()
-  orderBy = '_id';
+  orderBy = "_id";
 
   @ApiProperty({
     enum: OrderEnum,
-    enumName: 'OrderEnum',
+    enumName: "OrderEnum",
     default: OrderEnum.ASC,
     required: false,
   })

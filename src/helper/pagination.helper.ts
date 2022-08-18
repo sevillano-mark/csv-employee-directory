@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { validate } from 'class-validator';
-import { Model } from 'mongoose';
-import { OrderEnum, QueryPagination } from 'src/dto/query-pagination.dto';
+import { BadRequestException, Injectable } from "@nestjs/common";
+import { validate } from "class-validator";
+import { Model } from "mongoose";
+import { OrderEnum, QueryPagination } from "src/dto/query-pagination.dto";
 
 @Injectable()
 export class PaginationHelper {
@@ -9,7 +9,7 @@ export class PaginationHelper {
     model: Model<any>,
     pagination: QueryPagination,
     select: any = {},
-    populate: any = undefined,
+    populate: any = undefined
   ) {
     let query = model.find(select);
     const sort: any = {};

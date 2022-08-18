@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsNumber, IsString, Length, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsString, Length, Min } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class CommunityCreateDto {
   @ApiProperty()
