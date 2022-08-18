@@ -20,3 +20,5 @@ export class Community {
 
 export const CommunitySchema = SchemaFactory.createForClass(Community);
 CommunitySchema.index({ communityId: 1 }, { unique: true });
+CommunitySchema.index({ name: 'text' });
+CommunitySchema.index({ description: 'text' });

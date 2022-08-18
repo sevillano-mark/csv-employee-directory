@@ -71,4 +71,18 @@ export class CommunityService {
       { new: true },
     );
   }
+
+  async findByName(params: QueryPagination, term: string): Promise<Community[]> {
+    const populate = {
+      parent: globalConfig.fields.HIDE_FLDS_IN_RESULT,
+    };
+    const paginatedQuery = this.paginationHelper.generatePaginationQuery(
+      this.communityModel,
+      params,
+      { $text: { $search: term }, deleted: false },
+      populate,
+    );
+    return await paginatedQuery.exec();
+  }
+
 }

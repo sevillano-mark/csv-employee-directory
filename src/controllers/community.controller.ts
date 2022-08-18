@@ -19,7 +19,7 @@ import { CustomErrors } from 'src/shared/errors/custom.errors';
 @ApiTags('Community')
 @Controller({ path: 'community' })
 export class CommunityController {
-  constructor(private communityService: CommunityService) {}
+  constructor(private communityService: CommunityService) { }
 
   @Get()
   async getAllCommunities(@Query(new QueryParamsPipe()) params) {
@@ -63,5 +63,19 @@ export class CommunityController {
     const communityDeleted = await this.communityService.delete(communityId);
     if (communityDeleted) return communityDeleted;
     else throw new BadRequestException(CustomErrors.CommunityNotFound);
+  }
+
+  @Get('search/:term')
+  async searchByName(
+    @Query(new QueryParamsPipe()) params,
+    @Param('term') term: string,
+  ) {
+    const communityList = await this.communityService.findByName(params, term);
+    const paginatedResult: Pagination = {
+      results: communityList,
+      currentPage: params.page,
+      pageSize: params.pageLimit,
+    };
+    return paginatedResult;
   }
 }
