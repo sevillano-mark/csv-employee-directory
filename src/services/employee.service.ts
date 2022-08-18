@@ -166,4 +166,31 @@ export class EmployeeService {
     );
     return await paginatedQuery.exec();
   }
+
+  async findByEmail(email: String): Promise<Employee> {
+    return await this.employeeModel
+      .findOne({ email: email, deleted: false })
+      .select(globalConfig.fields.HIDE_FLDS_IN_RESULT)
+      .populate({
+        path: 'community',
+        model: this.communityModel,
+        select: globalConfig.fields.SHOW_FIELDS_COMMUNITY_SUB,
+      });
+  }
+
+
+  async findByCommunity(params: QueryPagination, communityId: number): Promise<Employee[]> {
+    const populate = {
+      parent: globalConfig.fields.HIDE_FLDS_IN_RESULT,
+    };
+    const paginatedQuery = this.paginationHelper.generatePaginationQuery(
+      this.employeeModel,
+      params,
+      { community: await this.communityModel.findOne({communityId}), deleted: false },
+      populate,
+    );
+    return await paginatedQuery.exec();
+  }
+
+
 }
