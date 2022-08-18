@@ -67,4 +67,25 @@ export class EmployeeController {
     if (employeeDeleted) return employeeDeleted;
     else throw new BadRequestException(CustomErrors.EmployeeNotFound);
   }
+  @Get('search/year-hired/:year')
+  async getByYearHired(@Query(new QueryParamsPipe()) params, @Param('year') year: number) {
+    const employeeList = await this.employeeService.findByYear(params, year)
+    const paginatedResult: Pagination = {
+      results: employeeList,
+      currentPage: params.page,
+      pageSize: params.pageLimit,
+    };
+    return paginatedResult;
+  }
+
+  @Get('search/name/:term')
+  async searchByName(@Query(new QueryParamsPipe()) params, @Param('term') term: string) {
+    const employeeList = await this.employeeService.findByName(params, term)
+    const paginatedResult: Pagination = {
+      results: employeeList,
+      currentPage: params.page,
+      pageSize: params.pageLimit,
+    };
+    return paginatedResult;
+  }
 }
