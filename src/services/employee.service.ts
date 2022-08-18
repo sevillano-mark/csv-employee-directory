@@ -120,8 +120,8 @@ export class EmployeeService {
   }
 
   async findByYear(params: QueryPagination, year: number): Promise<Employee[]> {
-    var start = new Date(year, 1, 1);
-    var end = new Date(year, 12, 31);
+    const start = new Date(year, 1, 1);
+    const end = new Date(year, 12, 31);
     const populate = {
       parent: globalConfig.fields.HIDE_FLDS_IN_RESULT,
       sub: [
@@ -155,7 +155,7 @@ export class EmployeeService {
     const paginatedQuery = this.paginationHelper.generatePaginationQuery(
       this.employeeModel,
       params,
-      {$text: {$search: term} , deleted: false},
+      { $text: { $search: term }, deleted: false },
       populate,
     );
     return await paginatedQuery.exec();
