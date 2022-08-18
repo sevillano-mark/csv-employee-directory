@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   NotFoundException,
@@ -20,7 +21,7 @@ import { CustomErrors } from 'src/shared/errors/custom.errors';
 @ApiTags('Employee')
 @Controller({ path: 'employee' })
 export class EmployeeController {
-  constructor(private employeeService: EmployeeService) {}
+  constructor(private employeeService: EmployeeService) { }
 
   @Get()
   async getAllEmployees(@Query(new QueryParamsPipe()) params) {
@@ -94,4 +95,28 @@ export class EmployeeController {
     };
     return paginatedResult;
   }
+
+  @Get('search/email/:email')
+  async searchByEmail(
+    @Param('email') email: string,
+  ) {
+    const employee = await this.employeeService.findByEmail(email);
+    if (employee) return employee;
+    else throw new NotFoundException(CustomErrors.EmployeeNotFound);
+  }
+
+  @Get('search/community/:id')
+  async searchByCommunity(
+    @Query(new QueryParamsPipe()) params,
+    @Param('id') id: number,
+  ) {
+    const employeeList = await this.employeeService.findByCommunity(params, id);
+    const paginatedResult: Pagination = {
+      results: employeeList,
+      currentPage: params.page,
+      pageSize: params.pageLimit,
+    };
+    return paginatedResult;
+  }
+  
 }
