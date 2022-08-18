@@ -11,7 +11,7 @@ import { Community, CommunityDocument } from 'src/models/community.schema';
 import { CustomErrors } from 'src/shared/errors/custom.errors';
 import { globalConfig } from 'src/shared/config/global.config';
 import { GeneralHelper } from 'src/helper/general.helper';
-import { QueryPagination } from 'src/models/query.pagination.model';
+import { QueryPagination } from 'src/dto/query-pagination.dto';
 import { PaginationHelper } from 'src/helper/pagination.helper';
 
 @Injectable()
@@ -48,6 +48,7 @@ export class EmployeeService {
   }
 
   async findAll(params: QueryPagination): Promise<Employee[]> {
+    await this.paginationHelper.queryPaginationValidate(params);
     const populate = {
       parent: globalConfig.fields.HIDE_FLDS_IN_RESULT,
       sub: [
@@ -87,7 +88,6 @@ export class EmployeeService {
       .findOne({ communityId: employeeCreateDto.communityId })
       .select('_id');
     if (!communityObjId) {
-      console.log(communityObjId);
       throw new BadRequestException(CustomErrors.CommunityNotFound);
     }
 

@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { CommunityCreateDto } from 'src/dto/community-create.dto';
 import { PaginationHelper } from 'src/helper/pagination.helper';
 import { Community, CommunityDocument } from 'src/models/community.schema';
-import { QueryPagination } from 'src/models/query.pagination.model';
+import { QueryPagination } from 'src/dto/query-pagination.dto';
 import { globalConfig } from 'src/shared/config/global.config';
 import { CustomErrors } from 'src/shared/errors/custom.errors';
 
@@ -29,6 +29,7 @@ export class CommunityService {
   }
 
   async findAll(params: QueryPagination): Promise<Community[]> {
+    await this.paginationHelper.queryPaginationValidate(params);
     const populate = {
       parent: globalConfig.fields.HIDE_FLDS_IN_RESULT,
     };

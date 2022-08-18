@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { validate } from 'class-validator';
 import { Model } from 'mongoose';
-import { OrderEnum, QueryPagination } from 'src/models/query.pagination.model';
+import { OrderEnum, QueryPagination } from 'src/dto/query-pagination.dto';
 
 @Injectable()
 export class PaginationHelper {
@@ -23,7 +24,7 @@ export class PaginationHelper {
       }
     }
 
-    sort[pagination.orderBy] = pagination.order == OrderEnum.desc ? -1 : 1;
+    sort[pagination.orderBy] = pagination.order == OrderEnum.DESC ? -1 : 1;
 
     query = query.sort(sort);
 
@@ -34,5 +35,12 @@ export class PaginationHelper {
     query = query.limit(pagination.pageLimit);
 
     return query;
+  }
+
+  async queryPaginationValidate(queryParams: QueryPagination) {
+    const validationError = await validate(queryParams);
+    if (validationError && validationError.length > 0) {
+      throw new BadRequestException(validationError.map((e) => e.constraints));
+    }
   }
 }

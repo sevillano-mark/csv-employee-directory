@@ -1,13 +1,13 @@
-import { PipeTransform, Injectable, ArgumentMetadata } from '@nestjs/common';
-import { QueryPagination } from 'src/models/query.pagination.model';
+import { PipeTransform, Injectable } from '@nestjs/common';
+import { QueryPagination } from 'src/dto/query-pagination.dto';
 
 @Injectable()
 export class QueryParamsPipe implements PipeTransform {
   transform(value: any): QueryPagination {
     const query = value;
     const queryParams: QueryPagination = new QueryPagination();
-    if (query.page) queryParams.page = query.page;
-    if (query.pageLimit) queryParams.pageLimit = query.pageLimit;
+    if (query.page) queryParams.page = Number(query.page);
+    if (query.pageLimit) queryParams.pageLimit = Number(query.pageLimit);
     if (query.orderBy) queryParams.orderBy = query.orderBy;
     if (query.order) queryParams.order = query.order;
 
