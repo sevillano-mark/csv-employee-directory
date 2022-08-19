@@ -1,5 +1,5 @@
-import { EmployeeController } from "../controllers/employee.controller";
-import { EmployeeService } from "../services/employee.service";
+import { EmployeeController } from "src/controllers/employee.controller";
+import { EmployeeService } from "src/services/employee.service";
 import { Module } from "@nestjs/common";
 import { EmployeeSchema } from "src/models/employee.schema";
 import { MongooseModule } from "@nestjs/mongoose";

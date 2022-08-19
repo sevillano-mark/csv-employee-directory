@@ -31,6 +31,7 @@ export class EmployeeService {
     if (!communityObjId) {
       throw new BadRequestException(CustomErrors.CommunityNotFound);
     }
+    console.log(employeeCreateDto);
     try {
       const employee = new this.employeeModel(
         this.generalHelper.createEmployeeFromDto(
@@ -38,12 +39,16 @@ export class EmployeeService {
           communityObjId
         )
       );
-      return (await employee.save()).toObject();
+      return (await employee.save()) ? employee.toObject() : null;
     } catch (e) {
-      throw new InternalServerErrorException(
-        CustomErrors.CommunityCreateFailed,
-        e
-      );
+      if (e.name === "MongoServerError") {
+        throw new BadRequestException(e.message);
+      } else {
+        throw new InternalServerErrorException(
+          CustomErrors.EmployeeCreateFailed,
+          e
+        );
+      }
     }
   }
 
@@ -69,16 +74,15 @@ export class EmployeeService {
   }
 
   async findOne(empId: number): Promise<Employee> {
-    return await (
-      await this.employeeModel
-        .findOne({ employeeNumber: empId, deleted: false })
-        .select(globalConfig.fields.HIDE_FLDS_IN_RESULT)
-        .populate({
-          path: "community",
-          model: this.communityModel,
-          select: globalConfig.fields.SHOW_FIELDS_COMMUNITY_SUB,
-        })
-    ).toObject();
+    const employee = await this.employeeModel
+      .findOne({ employeeNumber: empId, deleted: false })
+      .select(globalConfig.fields.HIDE_FLDS_IN_RESULT)
+      .populate({
+        path: "community",
+        model: this.communityModel,
+        select: globalConfig.fields.SHOW_FIELDS_COMMUNITY_SUB,
+      });
+    return employee ? await employee.toObject() : null;
   }
 
   async update(
@@ -92,37 +96,34 @@ export class EmployeeService {
     if (!communityObjId) {
       throw new BadRequestException(CustomErrors.CommunityNotFound);
     }
-
-    return await (
-      await this.employeeModel
-        .findOneAndUpdate(
-          condition,
-          this.generalHelper.createEmployeeFromDto(
-            employeeCreateDto,
-            communityObjId
-          ),
-          { new: true }
-        )
-        .select(globalConfig.fields.HIDE_FLDS_IN_RESULT)
-        .populate({
-          path: "community",
-          model: this.communityModel,
-          select: globalConfig.fields.SHOW_FIELDS_COMMUNITY_SUB,
-        })
-    ).toObject();
+    const empToBeUpdated = await this.employeeModel
+      .findOneAndUpdate(
+        condition,
+        this.generalHelper.createEmployeeFromDto(
+          employeeCreateDto,
+          communityObjId
+        ),
+        { new: true }
+      )
+      .select(globalConfig.fields.HIDE_FLDS_IN_RESULT)
+      .populate({
+        path: "community",
+        model: this.communityModel,
+        select: globalConfig.fields.SHOW_FIELDS_COMMUNITY_SUB,
+      });
+    return empToBeUpdated ? await empToBeUpdated.toObject() : null;
   }
 
   async delete(empId: number): Promise<any> {
     const condition = { employeeNumber: empId, deleted: false };
-    return await (
-      await this.employeeModel
-        .findOneAndUpdate(condition, { deleted: true }, { new: true })
-        .populate({
-          path: "community",
-          model: this.communityModel,
-          select: globalConfig.fields.SHOW_FIELDS_COMMUNITY_SUB,
-        })
-    ).toObject();
+    const empToBeDeleted = await this.employeeModel
+      .findOneAndUpdate(condition, { deleted: true }, { new: true })
+      .populate({
+        path: "community",
+        model: this.communityModel,
+        select: globalConfig.fields.SHOW_FIELDS_COMMUNITY_SUB,
+      });
+    return empToBeDeleted ? await empToBeDeleted.toObject() : null;
   }
 
   async findByYear(params: QueryPagination, year: number): Promise<Employee[]> {

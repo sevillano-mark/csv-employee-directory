@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { CommunityCreateDto } from "src/dto/community-create.dto";
@@ -19,12 +23,16 @@ export class CommunityService {
   async create(communityCreateDto: CommunityCreateDto): Promise<Community> {
     try {
       const community = new this.communityModel(communityCreateDto);
-      return (await community.save()).toObject();
+      return (await community.save()) ? await community.toObject() : null;
     } catch (e) {
-      throw new InternalServerErrorException(
-        CustomErrors.CommunityCreateFailed,
-        e
-      );
+      if (e.name === "MongoServerError") {
+        throw new BadRequestException(e.message);
+      } else {
+        throw new InternalServerErrorException(
+          CustomErrors.EmployeeCreateFailed,
+          e
+        );
+      }
     }
   }
 
@@ -43,14 +51,13 @@ export class CommunityService {
   }
 
   async findOne(communityId: number): Promise<Community> {
-    return await (
-      await this.communityModel
-        .findOne({
-          communityId: communityId,
-          deleted: false,
-        })
-        .select(globalConfig.fields.HIDE_FLDS_IN_RESULT)
-    ).toObject();
+    const community = await this.communityModel
+      .findOne({
+        communityId: communityId,
+        deleted: false,
+      })
+      .select(globalConfig.fields.HIDE_FLDS_IN_RESULT);
+    return community ? await community.toObject() : null;
   }
 
   async update(
@@ -58,24 +65,22 @@ export class CommunityService {
     community: CommunityCreateDto
   ): Promise<Community> {
     const condition = { communityId: communityId, deleted: false };
-    return await (
-      await this.communityModel
-        .findOneAndUpdate(condition, community, {
-          new: true,
-        })
-        .select(globalConfig.fields.HIDE_FLDS_IN_RESULT)
-    ).toObject();
+    const commToBeUpdated = await this.communityModel
+      .findOneAndUpdate(condition, community, {
+        new: true,
+      })
+      .select(globalConfig.fields.HIDE_FLDS_IN_RESULT);
+    return commToBeUpdated ? await commToBeUpdated.toObject() : null;
   }
 
   async delete(communityId: number): Promise<any> {
     const condition = { communityId: communityId };
-    return await (
-      await this.communityModel.findOneAndUpdate(
-        condition,
-        { deleted: true },
-        { new: true }
-      )
-    ).toObject();
+    const commToBeDeleted = await this.communityModel.findOneAndUpdate(
+      condition,
+      { deleted: true },
+      { new: true }
+    );
+    return commToBeDeleted ? await commToBeDeleted.toObject() : null;
   }
 
   async findByName(

@@ -15,7 +15,7 @@ export class QueryPagination {
     exclusiveMinimum: true,
     format: "int32",
     default: 1,
-    required: true,
+    required: false,
   })
   @IsNumber({ maxDecimalPlaces: 0 })
   @Min(1)
@@ -26,6 +26,7 @@ export class QueryPagination {
     maximum: 10000,
     title: "Page Limit",
     default: 10,
+    format: "int32",
     required: false,
   })
   @IsNumber({ maxDecimalPlaces: 0 })
@@ -36,6 +37,7 @@ export class QueryPagination {
     title: "Page Limit",
     default: "_id",
     required: false,
+    type: String,
   })
   @IsString()
   orderBy = "_id";

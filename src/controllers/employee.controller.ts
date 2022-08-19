@@ -10,8 +10,9 @@ import {
   Put,
   Query,
 } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { EmployeeCreateDto } from "src/dto/employee-create.dto";
+import { QueryPagination } from "src/dto/query-pagination.dto";
 import { Pagination } from "src/models/pagination.model";
 import { QueryParamsPipe } from "src/pipes/query.params.pipe";
 import { EmployeeService } from "src/services/employee.service";
@@ -24,6 +25,7 @@ export class EmployeeController {
   constructor(private employeeService: EmployeeService) {}
 
   @Get()
+  @ApiQuery({ type: QueryPagination })
   async getAllEmployees(@Query(new QueryParamsPipe()) params) {
     const employeeList = await this.employeeService.findAll(params);
     const paginatedResult: Pagination = {
@@ -88,6 +90,7 @@ export class EmployeeController {
   }
 
   @Get("search/year-hired/:year")
+  @ApiQuery({ type: QueryPagination })
   async getByYearHired(
     @Query(new QueryParamsPipe()) params,
     @Param("year") year: number
@@ -108,6 +111,7 @@ export class EmployeeController {
   }
 
   @Get("search/name/:term")
+  @ApiQuery({ type: QueryPagination })
   async searchByName(
     @Query(new QueryParamsPipe()) params,
     @Param("term") term: string
@@ -132,6 +136,7 @@ export class EmployeeController {
   }
 
   @Get("search/community/:id")
+  @ApiQuery({ type: QueryPagination })
   async searchByCommunity(
     @Query(new QueryParamsPipe()) params,
     @Param("id") id: number

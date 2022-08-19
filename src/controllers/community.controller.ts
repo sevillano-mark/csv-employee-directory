@@ -4,12 +4,14 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   Param,
   Post,
   Put,
   Query,
 } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiQuery, ApiTags } from "@nestjs/swagger";
+import { QueryPagination } from "src/dto/query-pagination.dto";
 import { CommunityCreateDto } from "src/dto/community-create.dto";
 import { Pagination } from "src/models/pagination.model";
 import { QueryParamsPipe } from "src/pipes/query.params.pipe";
@@ -23,17 +25,22 @@ export class CommunityController {
   constructor(private communityService: CommunityService) {}
 
   @Get()
+  @ApiQuery({ type: QueryPagination })
   async getAllCommunities(@Query(new QueryParamsPipe()) params) {
-    const communityList = await this.communityService.findAll(params);
-    const paginatedResult: Pagination = {
-      results: communityList,
-      currentPage: params.page,
-      pageSize: params.pageLimit,
-    };
-    return {
-      ...paginatedResult,
-      message: MessageConstants.results.SUCCESS.FIND_ALL,
-    };
+    try {
+      const communityList = await this.communityService.findAll(params);
+      const paginatedResult: Pagination = {
+        results: communityList,
+        currentPage: params.page,
+        pageSize: params.pageLimit,
+      };
+      return {
+        ...paginatedResult,
+        message: MessageConstants.results.SUCCESS.FIND_ALL,
+      };
+    } catch (e) {
+      throw new InternalServerErrorException("ehe");
+    }
   }
 
   @Get(":id")
@@ -85,6 +92,7 @@ export class CommunityController {
   }
 
   @Get("search/:term")
+  @ApiQuery({ type: QueryPagination })
   async searchByName(
     @Query(new QueryParamsPipe()) params,
     @Param("term") term: string

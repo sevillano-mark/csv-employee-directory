@@ -1,5 +1,5 @@
-import { CommunityService } from "./../services/community.service";
-import { CommunityController } from "./../controllers/community.controller";
+import { CommunityService } from "src/services/community.service";
+import { CommunityController } from "src/controllers/community.controller";
 import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { CommunitySchema } from "src/models/community.schema";
