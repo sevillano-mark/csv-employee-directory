@@ -39,7 +39,7 @@ export class CommunityController {
         message: MessageConstants.results.SUCCESS.FIND_ALL,
       };
     } catch (e) {
-      throw new InternalServerErrorException("ehe");
+      throw new InternalServerErrorException(e);
     }
   }
 

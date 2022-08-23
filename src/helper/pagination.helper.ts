@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { validate } from "class-validator";
 import { Model } from "mongoose";
+import { EmployeeSearchQuery } from "src/dto/employee-query-search-dto";
 import { OrderEnum, QueryPagination } from "src/dto/query-pagination.dto";
 
 @Injectable()
 export class PaginationHelper {
   generatePaginationQuery(
     model: Model<any>,
-    pagination: QueryPagination,
+    pagination: QueryPagination | EmployeeSearchQuery,
     select: any = {},
     populate: any = undefined
   ) {
@@ -37,7 +38,9 @@ export class PaginationHelper {
     return query;
   }
 
-  async queryPaginationValidate(queryParams: QueryPagination) {
+  async queryPaginationValidate(
+    queryParams: QueryPagination | EmployeeSearchQuery
+  ) {
     const validationError = await validate(queryParams);
     if (validationError && validationError.length > 0) {
       throw new BadRequestException(validationError.map((e) => e.constraints));

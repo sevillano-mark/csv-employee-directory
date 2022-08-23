@@ -1,4 +1,4 @@
-import { Injectable, Type } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model, ObjectId } from "mongoose";
 import { CommunityCreateDto } from "src/dto/community-create.dto";
@@ -104,5 +104,14 @@ export class CommunityService {
       })
       .select(selection);
     return community ? await community.toObject() : null;
+  }
+
+  async searchByName(term: string) {
+    const searchResults = await this.communityModel
+      .find({
+        name: { $regex: new RegExp([".*", term, ".*"].join(""), "i") },
+      })
+      .select("_id");
+    return searchResults;
   }
 }

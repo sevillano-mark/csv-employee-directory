@@ -34,9 +34,15 @@ export const CustomErrors = {
     errorMessage: "Employee not created",
     reason: `Failed creating Employee`,
   },
-  EmployeeSearchYearInvalid: {
-    apiErrorCode: "E_0002_0002",
-    errorMessage: "Year parameter invalid",
-    reason: `Year is not a number`,
+  EmployeeSearchFailed: {
+    apiErrorCode: "E_0002_0003",
+    errorMessage: "Employee Search failed",
+    reason: ``,
+  },
+  EmployeeSearchEmptyParams: {
+    apiErrorCode: "E_0002_0004",
+    errorMessage:
+      "Please enter at least one search parameter (name / hire year etc.)",
+    reason: `Search Params empty`,
   },
 };

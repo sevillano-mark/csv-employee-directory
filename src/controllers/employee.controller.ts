@@ -4,7 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -13,8 +12,10 @@ import {
 } from "@nestjs/common";
 import { ApiQuery, ApiTags } from "@nestjs/swagger";
 import { EmployeeCreateDto } from "src/dto/employee-create.dto";
+import { EmployeeSearchQuery } from "src/dto/employee-query-search-dto";
 import { QueryPagination } from "src/dto/query-pagination.dto";
 import { Pagination } from "src/models/pagination.model";
+import { EmpSearchQueryParamsPipe } from "src/pipes/empsearch.query.params.pipe";
 import { QueryParamsPipe } from "src/pipes/query.params.pipe";
 import { CommunityService } from "src/services/community.service";
 import { EmployeeService } from "src/services/employee.service";
@@ -132,64 +133,33 @@ export class EmployeeController {
     } else throw new BadRequestException(CustomErrors.EmployeeNotFound);
   }
 
-  @Get("search/year-hired/:year")
-  @ApiQuery({ type: QueryPagination })
-  async getByYearHired(
-    @Query(new QueryParamsPipe()) params,
-    @Param("year") year: number
-  ) {
-    if (isNaN(year))
-      throw new BadRequestException(CustomErrors.EmployeeSearchYearInvalid);
-
-    const employeeList = await this.employeeService.findByYear(params, year);
-    const paginatedResult: Pagination = {
-      results: employeeList,
-      currentPage: params.page,
-      pageSize: params.pageLimit,
-    };
-    return {
-      ...paginatedResult,
-      message: MessageConstants.results.SUCCESS.SEARCH,
-    };
-  }
-
-  @Get("search/name/:term")
-  @ApiQuery({ type: QueryPagination })
-  async searchByName(
-    @Query(new QueryParamsPipe()) params,
-    @Param("term") term: string
-  ) {
-    const employeeList = await this.employeeService.findByName(params, term);
-    const paginatedResult: Pagination = {
-      results: employeeList,
-      currentPage: params.page,
-      pageSize: params.pageLimit,
-    };
-    return {
-      ...paginatedResult,
-      message: MessageConstants.results.SUCCESS.SEARCH,
-    };
-  }
-
-  @Get("search/email/:email")
-  async searchByEmail(@Param("email") email: string) {
-    const employee = await this.employeeService.findByEmail(email);
-    if (employee) return employee;
-    else throw new NotFoundException(CustomErrors.EmployeeNotFound);
-  }
-
-  @Get("search/community/:id")
-  @ApiQuery({ type: QueryPagination })
-  async searchByCommunity(
-    @Query(new QueryParamsPipe()) params,
-    @Param("id") id: number
-  ) {
-    const employeeList = await this.employeeService.findByCommunity(params, id);
-    const paginatedResult: Pagination = {
-      results: employeeList,
-      currentPage: params.page,
-      pageSize: params.pageLimit,
-    };
-    return paginatedResult;
+  @Get("search/general")
+  @ApiQuery({ type: EmployeeSearchQuery })
+  async generalSearch(@Query(new EmpSearchQueryParamsPipe()) params) {
+    try {
+      if (params.email || params.community || params.name || params.hireYear) {
+        const searchedEmployees = await this.employeeService.generalSearch(
+          params
+        );
+        const paginatedResult: Pagination = {
+          results: searchedEmployees,
+          currentPage: params.page,
+          pageSize: params.pageLimit,
+        };
+        return {
+          ...paginatedResult,
+          message: MessageConstants.results.SUCCESS.FIND_ALL,
+        };
+      }
+      throw new BadRequestException(CustomErrors.EmployeeSearchEmptyParams);
+    } catch (e) {
+      if (e.name !== "BadRequestException") {
+        throw new BadRequestException(CustomErrors.EmployeeSearchFailed);
+      } else if (e.name === "MongoServerError") {
+        throw new BadRequestException(e.message);
+      } else {
+        return e;
+      }
+    }
   }
 }

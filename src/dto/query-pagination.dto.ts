@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNumber, IsString, Min } from "class-validator";
+import { IsEnum, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export enum OrderEnum {
   ASC = "asc",
@@ -19,6 +19,7 @@ export class QueryPagination {
   })
   @IsNumber({ maxDecimalPlaces: 0 })
   @Min(1)
+  @IsOptional()
   page = 1;
 
   @ApiProperty({
@@ -31,6 +32,7 @@ export class QueryPagination {
   })
   @IsNumber({ maxDecimalPlaces: 0 })
   @Min(1)
+  @IsOptional()
   pageLimit = 10;
 
   @ApiProperty({
@@ -40,6 +42,7 @@ export class QueryPagination {
     type: String,
   })
   @IsString()
+  @IsOptional()
   orderBy = "_id";
 
   @ApiProperty({
@@ -49,5 +52,6 @@ export class QueryPagination {
     required: false,
   })
   @IsEnum(OrderEnum)
+  @IsOptional()
   order: OrderEnum = OrderEnum.ASC;
 }

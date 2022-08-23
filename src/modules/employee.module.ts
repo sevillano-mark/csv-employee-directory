@@ -7,6 +7,7 @@ import { CommunitySchema } from "src/models/community.schema";
 import { GeneralHelper } from "src/helper/general.helper";
 import { PaginationHelper } from "src/helper/pagination.helper";
 import { CommunityService } from "src/services/community.service";
+import { SearchHelper } from "src/helper/search.helper";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CommunityService } from "src/services/community.service";
     CommunityService,
     GeneralHelper,
     PaginationHelper,
+    SearchHelper,
   ],
 })
 export class EmployeeModule {}
