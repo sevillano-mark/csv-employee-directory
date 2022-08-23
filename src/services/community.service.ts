@@ -1,39 +1,25 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from "@nestjs/common";
+import { Injectable, Type } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, ObjectId } from "mongoose";
 import { CommunityCreateDto } from "src/dto/community-create.dto";
 import { PaginationHelper } from "src/helper/pagination.helper";
 import { Community, CommunityDocument } from "src/models/community.schema";
 import { QueryPagination } from "src/dto/query-pagination.dto";
 import { globalConfig } from "src/shared/config/global.config";
-import { CustomErrors } from "src/shared/errors/custom.errors";
+import { Employee, EmployeeDocument } from "src/models/employee.schema";
 
 @Injectable()
 export class CommunityService {
   constructor(
     @InjectModel(Community.name)
     private communityModel: Model<CommunityDocument>,
+    @InjectModel(Employee.name) private employeeModel: Model<EmployeeDocument>,
     private paginationHelper: PaginationHelper
   ) {}
 
   async create(communityCreateDto: CommunityCreateDto): Promise<Community> {
-    try {
-      const community = new this.communityModel(communityCreateDto);
-      return (await community.save()) ? await community.toObject() : null;
-    } catch (e) {
-      if (e.name === "MongoServerError") {
-        throw new BadRequestException(e.message);
-      } else {
-        throw new InternalServerErrorException(
-          CustomErrors.EmployeeCreateFailed,
-          e
-        );
-      }
-    }
+    const community = new this.communityModel(communityCreateDto);
+    return (await community.save()) ? await community.toObject() : null;
   }
 
   async findAll(params: QueryPagination): Promise<Community[]> {
@@ -97,5 +83,26 @@ export class CommunityService {
       populate
     );
     return await paginatedQuery.exec();
+  }
+
+  async countUsersOnCommunity(communityObjId: ObjectId): Promise<number> {
+    const employeeCount = await this.employeeModel.countDocuments({
+      deleted: false,
+      community: communityObjId,
+    });
+    return employeeCount;
+  }
+
+  async findOneWithSelection(
+    communityId: number,
+    selection: any = []
+  ): Promise<Community> {
+    const community = await this.communityModel
+      .findOne({
+        communityId: communityId,
+        deleted: false,
+      })
+      .select(selection);
+    return community ? await community.toObject() : null;
   }
 }

@@ -56,11 +56,22 @@ export class CommunityController {
 
   @Post()
   async createCommunity(@Body() community: CommunityCreateDto) {
-    const communityCreated = await this.communityService.create(community);
-    return {
-      ...communityCreated,
-      message: MessageConstants.results.SUCCESS.CREATE,
-    };
+    try {
+      const communityCreated = await this.communityService.create(community);
+      return {
+        ...communityCreated,
+        message: MessageConstants.results.SUCCESS.CREATE,
+      };
+    } catch (e) {
+      if (e.name === "MongoServerError") {
+        throw new BadRequestException(e.message);
+      } else {
+        throw new InternalServerErrorException(
+          CustomErrors.EmployeeCreateFailed,
+          e
+        );
+      }
+    }
   }
 
   @Put(":id")
@@ -82,13 +93,36 @@ export class CommunityController {
 
   @Delete(":id")
   async deleteCommunity(@Param("id") communityId: number) {
-    const communityDeleted = await this.communityService.delete(communityId);
-    if (communityDeleted) {
-      return {
-        ...communityDeleted,
-        message: MessageConstants.results.SUCCESS.DELETE,
-      };
-    } else throw new BadRequestException(CustomErrors.CommunityNotFound);
+    try {
+      const community = await this.communityService.findOneWithSelection(
+        communityId,
+        ["_id"]
+      );
+      if (community) {
+        if (
+          (await this.communityService.countUsersOnCommunity(
+            community["_id"]
+          )) === 0
+        ) {
+          const communityDeleted = await this.communityService.delete(
+            communityId
+          );
+          return {
+            ...communityDeleted,
+            message: MessageConstants.results.SUCCESS.DELETE,
+          };
+        } else {
+          throw new BadRequestException(
+            CustomErrors.CommunityCannotDeleteHasEmployee
+          );
+        }
+      } else throw new BadRequestException(CustomErrors.CommunityNotFound);
+    } catch (e) {
+      if (e.name !== "BadRequestException") {
+        throw new BadRequestException(CustomErrors.CommunityDeleteFailed);
+      }
+      return e;
+    }
   }
 
   @Get("search/:term")

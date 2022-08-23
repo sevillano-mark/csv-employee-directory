@@ -9,6 +9,21 @@ export const CustomErrors = {
     errorMessage: "Community not created",
     reason: `Failed creating Community`,
   },
+  CommunityCannotDeleteHasEmployee: {
+    apiErrorCode: "E_0001_0003",
+    errorMessage: "Cannot delete Community ",
+    reason: `It has at least one employee associated with it.`,
+  },
+  CommunityDeleteFailed: {
+    apiErrorCode: "E_0001_0004",
+    errorMessage: "Cannot delete Community ",
+    reason: `Internal server error`,
+  },
+  CommunityCountFailed: {
+    apiErrorCode: "E_0001_0003",
+    errorMessage: "Community Count failed",
+    reason: `It has at least one employee associated with it.`,
+  },
   EmployeeNotFound: {
     apiErrorCode: "E_0002_0001",
     errorMessage: "Employee not found",

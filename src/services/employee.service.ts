@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Model, ObjectId } from "mongoose";
 import { Employee, EmployeeDocument } from "src/models/employee.schema";
 import { EmployeeCreateDto } from "src/dto/employee-create.dto";
 import { Community, CommunityDocument } from "src/models/community.schema";
@@ -24,32 +24,17 @@ export class EmployeeService {
     private paginationHelper: PaginationHelper
   ) {}
 
-  async create(employeeCreateDto: EmployeeCreateDto): Promise<Employee> {
-    const communityObjId = await this.communityModel
-      .findOne({ communityId: employeeCreateDto.communityId })
-      .select(["_id"]);
-    if (!communityObjId) {
-      throw new BadRequestException(CustomErrors.CommunityNotFound);
-    }
-    console.log(employeeCreateDto);
-    try {
-      const employee = new this.employeeModel(
-        this.generalHelper.createEmployeeFromDto(
-          employeeCreateDto,
-          communityObjId
-        )
-      );
-      return (await employee.save()) ? employee.toObject() : null;
-    } catch (e) {
-      if (e.name === "MongoServerError") {
-        throw new BadRequestException(e.message);
-      } else {
-        throw new InternalServerErrorException(
-          CustomErrors.EmployeeCreateFailed,
-          e
-        );
-      }
-    }
+  async create(
+    employeeCreateDto: EmployeeCreateDto,
+    communityObjId: ObjectId
+  ): Promise<Employee> {
+    const employee = new this.employeeModel(
+      this.generalHelper.createEmployeeFromDto(
+        employeeCreateDto,
+        communityObjId
+      )
+    );
+    return (await employee.save()) ? employee.toObject() : null;
   }
 
   async findAll(params: QueryPagination): Promise<Employee[]> {
@@ -87,15 +72,10 @@ export class EmployeeService {
 
   async update(
     empId: number,
-    employeeCreateDto: EmployeeCreateDto
+    employeeCreateDto: EmployeeCreateDto,
+    communityObjId: ObjectId
   ): Promise<Employee> {
     const condition = { employeeNumber: empId, deleted: false };
-    const communityObjId = await this.communityModel
-      .findOne({ communityId: employeeCreateDto.communityId })
-      .select("_id");
-    if (!communityObjId) {
-      throw new BadRequestException(CustomErrors.CommunityNotFound);
-    }
     const empToBeUpdated = await this.employeeModel
       .findOneAndUpdate(
         condition,
@@ -203,5 +183,18 @@ export class EmployeeService {
       populate
     );
     return await paginatedQuery.exec();
+  }
+
+  async findOneWithSelection(
+    employeeId: number,
+    selection: any = []
+  ): Promise<Community> {
+    const employee = await this.employeeModel
+      .findOne({
+        communityId: employeeId,
+        deleted: false,
+      })
+      .select(selection);
+    return employee ? await employee.toObject() : null;
   }
 }

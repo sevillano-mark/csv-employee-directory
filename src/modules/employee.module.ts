@@ -6,6 +6,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { CommunitySchema } from "src/models/community.schema";
 import { GeneralHelper } from "src/helper/general.helper";
 import { PaginationHelper } from "src/helper/pagination.helper";
+import { CommunityService } from "src/services/community.service";
 
 @Module({
   imports: [
@@ -13,6 +14,11 @@ import { PaginationHelper } from "src/helper/pagination.helper";
     MongooseModule.forFeature([{ name: "Community", schema: CommunitySchema }]),
   ],
   controllers: [EmployeeController],
-  providers: [EmployeeService, GeneralHelper, PaginationHelper],
+  providers: [
+    EmployeeService,
+    CommunityService,
+    GeneralHelper,
+    PaginationHelper,
+  ],
 })
 export class EmployeeModule {}

@@ -4,6 +4,7 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   Post,
@@ -15,6 +16,7 @@ import { EmployeeCreateDto } from "src/dto/employee-create.dto";
 import { QueryPagination } from "src/dto/query-pagination.dto";
 import { Pagination } from "src/models/pagination.model";
 import { QueryParamsPipe } from "src/pipes/query.params.pipe";
+import { CommunityService } from "src/services/community.service";
 import { EmployeeService } from "src/services/employee.service";
 import { CustomErrors } from "src/shared/errors/custom.errors";
 import { MessageConstants } from "src/shared/message.constants";
@@ -22,7 +24,10 @@ import { MessageConstants } from "src/shared/message.constants";
 @ApiTags("Employee")
 @Controller({ path: "employee" })
 export class EmployeeController {
-  constructor(private employeeService: EmployeeService) {}
+  constructor(
+    private employeeService: EmployeeService,
+    private communityService: CommunityService
+  ) {}
 
   @Get()
   @ApiQuery({ type: QueryPagination })
@@ -52,13 +57,32 @@ export class EmployeeController {
 
   @Post()
   async createEmployee(@Body() employeeCreateDto: EmployeeCreateDto) {
-    const employeeCreated = await this.employeeService.create(
-      employeeCreateDto
-    );
-    return {
-      ...employeeCreated,
-      message: MessageConstants.results.SUCCESS.CREATE,
-    };
+    try {
+      const communityObjectId =
+        await this.communityService.findOneWithSelection(
+          employeeCreateDto.communityId,
+          ["_id"]
+        );
+      if (!communityObjectId) {
+        throw new BadRequestException(CustomErrors.CommunityNotFound);
+      }
+      const employeeCreated = await this.employeeService.create(
+        employeeCreateDto,
+        communityObjectId["_id"]
+      );
+      return {
+        ...employeeCreated,
+        message: MessageConstants.results.SUCCESS.CREATE,
+      };
+    } catch (e) {
+      if (e.name !== "BadRequestException") {
+        throw new BadRequestException(CustomErrors.EmployeeCreateFailed);
+      } else if (e.name === "MongoServerError") {
+        throw new BadRequestException(e.message);
+      } else {
+        return e;
+      }
+    }
   }
 
   @Put(":id")
@@ -66,16 +90,35 @@ export class EmployeeController {
     @Param("id") employeeId: number,
     @Body() employeeCreateDto: EmployeeCreateDto
   ) {
-    const employeeUpdated = await this.employeeService.update(
-      employeeId,
-      employeeCreateDto
-    );
-    if (employeeUpdated) {
-      return {
-        ...employeeUpdated,
-        message: MessageConstants.results.SUCCESS.UPDATE,
-      };
-    } else throw new BadRequestException(CustomErrors.EmployeeNotFound);
+    try {
+      const communityObjectId =
+        await this.communityService.findOneWithSelection(
+          employeeCreateDto.communityId,
+          ["_id"]
+        );
+      if (!communityObjectId) {
+        throw new BadRequestException(CustomErrors.CommunityNotFound);
+      }
+      const employeeUpdated = await this.employeeService.update(
+        employeeId,
+        employeeCreateDto,
+        communityObjectId["_id"]
+      );
+      if (employeeUpdated) {
+        return {
+          ...employeeUpdated,
+          message: MessageConstants.results.SUCCESS.UPDATE,
+        };
+      } else throw new BadRequestException(CustomErrors.EmployeeNotFound);
+    } catch (e) {
+      if (e.name !== "BadRequestException") {
+        throw new BadRequestException(CustomErrors.EmployeeCreateFailed);
+      } else if (e.name === "MongoServerError") {
+        throw new BadRequestException(e.message);
+      } else {
+        return e;
+      }
+    }
   }
 
   @Delete(":id")
